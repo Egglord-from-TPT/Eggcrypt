@@ -2,7 +2,7 @@
 
 A pretty secure (yet inneficient) encryption program.
 
-This is my fift python library :D
+This is my fifth python library :D
 
 Commands:
 
