@@ -1,25 +1,17 @@
 # variables_plus
 
-A simple Python library to create, clear, read, write and delete variables in multiple sandboxes.
+A pretty secure (yet inneficient) encryption program.
 
-This is my first python library :D
+This is my fift python library :D
 
 Commands:
 
-vp.vp("create(variable=something)")   # Remove =something to create a blank variable.
+eggcrypt.encrypt("") # Returns an encrypted string.
 
-vp.vp("clear(variable)")   # Leave clear() empty to clear all variables.
-
-vp.vp("delete(variable)")   # Variable needs to exist.
-
-vp.vp("read(variable)")   # Doesn't print it. Use print(vp.vp("read(variable)")) to print the variables contents.
-
-vp.vp(“write(variable=something)”)   # Variable needs to exist.
-
-vp.vp("SANDBOX()") # Add a number between the brackets for the sandbox ID.
+eggcrypt.decrypt("") # Returns a non-encrypted string.
 
 # !NB!
 
-Use: pip install variablesplus
+Use: pip install eggcrypt
 
-But, to import it: import vp
+But, to import it: import eggcrypt
