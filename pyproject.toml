@@ -3,9 +3,9 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "variablesplus"
-version = "3.1.0"
-description = "A Python package for handling variables, also my first library. I hope you enjoy! You can create, clear, write to, delete and read variables. Safely."
+name = "eggcrypt"
+version = "1.0.0"
+description = "A pretty secure (yet inneficient) encryption program."
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
