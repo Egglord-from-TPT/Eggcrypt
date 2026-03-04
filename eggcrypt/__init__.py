@@ -1,1 +1,1 @@
-from .egg import encode, decode
+from .egg import encrypt, decrypt
