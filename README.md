@@ -1,4 +1,4 @@
-# variables_plus
+# eggcrypt
 
 A pretty secure (yet inneficient) encryption program.
 
