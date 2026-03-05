@@ -37,3 +37,12 @@ def decrypt(txt, rep=0):
             final+=chr(int(temp))
             temp=""
     return final
+def key():
+    import time
+    seed=1
+    for i in range(int(time.time()*10000)%100):
+    	a=str(time.time()*10000)
+    	a=a[0:10]
+    	a=int(a)
+    	seed=int(seed*a+(round(seed^a)))
+    return seed
