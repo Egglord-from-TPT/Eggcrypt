@@ -46,3 +46,28 @@ def key():
     	a=int(a)
     	seed=int(seed*a+(round(seed^a)))
     return seed
+def hash(inp):
+    inp=str(inp)
+    tot=0
+    for i in inp:
+        tot+=ord(i)
+    key=key()
+    out=""
+    for i in str(key):
+        out+=str(int(i)+((tot*int(i))%256))
+    o=""
+    for i in out:
+        o+=ascii(int(i)+tot)
+    out=""
+    for i in range(len(o)-1):
+        out+=ascii(i*tot+int(o[i]))
+    for n in map(int,[out[i:i+2] for i in range(0,    len(out),2)]):o+=chr(n+32)
+    if len(out)%2:o+=chr(int(out[-1])*21)
+    o=o.lstrip("0123456789")
+    h=0
+    for c in o:h=(h*31+ord(c))&((1<<256)-1)
+    chars="0123456789abcdefghijklmnopqrstuvwxyz"
+    x=""
+    while h:x=chars[h%36]+x;h//=36
+    out=x.zfill(50)
+    return out
