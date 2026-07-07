@@ -5,6 +5,6 @@ setup(
     version="1.2.0",
     packages=find_packages(),
     description="A pretty secure (yet inneficient) encryption program.",
-    author="Egglord-from-TPT(github)",
+    author="Egglord",
     python_requires=">=3.7",
 )
