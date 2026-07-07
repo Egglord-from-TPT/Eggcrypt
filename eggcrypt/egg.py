@@ -64,7 +64,7 @@ def hash(inp):
     o=""
     for i in out:o+=chr((int(i)+tot)%256)
     out=""
-    for i in range(len(o)-1):out+=ascii(i*tot+int(o[i]))
+    for i in range(len(o)-1):out+=ascii(i*tot+ord(o[i]))
     for n in map(int,[out[i:i+2] for i in range(0,len(out),2)]):o+=chr(n+32)
     if len(out)%2:o+=chr(int(out[-1])*21)
     o=o.lstrip("0123456789")
