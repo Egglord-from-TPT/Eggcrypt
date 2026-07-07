@@ -12,6 +12,8 @@ eggcrypt.decrypt("") # Returns a non-encrypted string.
 
 eggcrypt.key() # Returns a random key/seed.
 
+eggcrypt.hash("") # Uses a custom method to hash a string
+
 # !NB!
 
 Use: pip install eggcrypt
