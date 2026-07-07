@@ -1,1 +1,1 @@
-from .egg import encrypt, decrypt, key, ehash
+from .egg import encrypt, decrypt, key, hash
