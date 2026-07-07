@@ -48,16 +48,21 @@ def key():
     return seed
 def hash(inp):
     inp=str(inp)
-    h_s=2166136261
-    for c in inp:
-        h_s^=ord(c)
-        h_s=(h_s*16777619)&0xFFFFFFFF
-    key=h_s
-    tot=h_s%10000
+    H=[0x243f6a8885a308d3,0x13198a2e03707344,0xa4093822299f31d0,0x082efa98ec4e6c89]
+    for i,c in enumerate(inp):
+       x=ord(c)+(i<<8)
+       j=i%4
+       H[j]^=x
+       H[j]=(H[j]*0x100000001b3)&0xffffffffffffffff
+       H[(j+1)%4]^=H[j]>>17
+    key_str=''.join(f'{x:016x}' for x in H)
+    tot=sum(map(ord,key_str))%10000
     out=""
-    for i in str(key):out+=str(int(i)+((tot*int(i))%256))
+    for i in key_str:
+        v=int(i,16)
+        out+=str(v+((tot*v)%256))
     o=""
-    for i in out:o+=ascii(int(i)+tot)
+    for i in out:o+=chr((int(i)+tot)%256)
     out=""
     for i in range(len(o)-1):out+=ascii(i*tot+int(o[i]))
     for n in map(int,[out[i:i+2] for i in range(0,len(out),2)]):o+=chr(n+32)
