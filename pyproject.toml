@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eggcrypt"
-version = "1.1.1"
-description = "A pretty secure (yet inneficient) encryption program."
+version = "1.2.0"
+description = "A pretty secure (yet inneficient) encryption program. Has key(), hash(), encrypt() and decrypt()."
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
