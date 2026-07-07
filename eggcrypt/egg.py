@@ -46,7 +46,7 @@ def key():
     	a=int(a)
     	seed=int(seed*a+(round(seed^a)))
     return seed
-def ehash(inp):
+def hash(inp):
     inp=str(inp)
     tot=0
     for i,c in enumerate(inp):
