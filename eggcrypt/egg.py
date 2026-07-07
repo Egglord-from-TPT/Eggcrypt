@@ -51,14 +51,7 @@ def ehash(inp):
     tot=0
     for i in inp:
         tot+=ord(i)
-    import time
-    seed=1
-    for i in range(int(time.time()*10000)%100):
-    	a=str(time.time()*10000)
-    	a=a[0:10]
-    	a=int(a)
-    	seed=int(seed*a+(round(seed^a)))
-    key=seed
+    key=(len(inp)*tot)^(tot*256)
     out=""
     for i in str(key):
         out+=str(int(i)+((tot*int(i))%256))
