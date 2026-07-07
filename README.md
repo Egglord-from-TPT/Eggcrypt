@@ -12,7 +12,7 @@ eggcrypt.decrypt("") # Returns a non-encrypted string.
 
 eggcrypt.key() # Returns a random key/seed.
 
-eggcrypt.ehash("") # Uses a custom method to hash a string. It is ehash and not hadh for 2 reasons: PyPI doesn't like hash and ehash is short for egghash (eggcrypt.egghash("") doesn't work).
+eggcrypt.hash("") # Uses a custom method to hash a string.
 
 # !NB!
 
