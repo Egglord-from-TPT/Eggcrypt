@@ -48,20 +48,19 @@ def key():
     return seed
 def hash(inp):
     inp=str(inp)
-    tot=0
-    for i,c in enumerate(inp):
-        tot+=(i+1)*ord(c)
-    key=(len(inp)*tot)^(tot*256)
+    h_s=2166136261
+    for c in inp:
+        h_s^=ord(c)
+        h_s=(h_s*16777619)&0xFFFFFFFF
+    key=h_s
+    tot=h_s%10000
     out=""
-    for i in str(key):
-        out+=str(int(i)+((tot*int(i))%256))
+    for i in str(key):out+=str(int(i)+((tot*int(i))%256))
     o=""
-    for i in out:
-        o+=ascii(int(i)+tot)
+    for i in out:o+=ascii(int(i)+tot)
     out=""
-    for i in range(len(o)-1):
-        out+=ascii(i*tot+int(o[i]))
-    for n in map(int,[out[i:i+2] for i in range(0,    len(out),2)]):o+=chr(n+32)
+    for i in range(len(o)-1):out+=ascii(i*tot+int(o[i]))
+    for n in map(int,[out[i:i+2] for i in range(0,len(out),2)]):o+=chr(n+32)
     if len(out)%2:o+=chr(int(out[-1])*21)
     o=o.lstrip("0123456789")
     h=0
