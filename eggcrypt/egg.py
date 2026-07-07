@@ -49,8 +49,8 @@ def key():
 def ehash(inp):
     inp=str(inp)
     tot=0
-    for i in inp:
-        tot+=ord(i)
+    for i,c in enumerate(inp):
+        tot+=(i+1)*ord(c)
     key=(len(inp)*tot)^(tot*256)
     out=""
     for i in str(key):
