@@ -57,6 +57,8 @@ def hash(inp):
        H[(j+1)%4]^=H[j]>>17
     key_str=''.join(f'{x:016x}' for x in H)
     tot=sum((i+1)*ord(c) for i,c in enumerate(key_str))
+    for i in inp:
+        tot^=ord(i)
     out=""
     for i in key_str:
         v=int(i,16)
@@ -64,7 +66,7 @@ def hash(inp):
     o=""
     for i in out:o+=chr((int(i)+tot)%256)
     out=""
-    for i in range(len(o)-1):out+=ascii(i*tot+ord(o[i]))
+    for i in range(len(o)-1):out+=str(i*tot+ord(o[i]))
     for n in map(int,[out[i:i+2] for i in range(0,len(out),2)]):o+=chr(n+32)
     if len(out)%2:o+=chr(int(out[-1])*21)
     o=o.lstrip("0123456789")
