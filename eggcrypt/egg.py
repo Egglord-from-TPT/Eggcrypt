@@ -1,44 +1,17 @@
-def encrypt(txt, key, rep=0):
-    encoded=""
-    for i, ch in enumerate(txt):
-        b=ord(ch)^ord(key[i%len(key)])
-        for digit in str(b):
-            encoded+=f"{int(digit)+200:03d}"
-    out=""
-    for i in range(0, len(encoded),2):
-        chunk=encoded[i:i+2]
-        if len(chunk)==2:
-            out+=chr(int(chunk))
-        else:
-            out+=chr(int(chunk)*10)
-    if rep:
-        return out
-    return encrypt(out,key,1)
-def decrypt(txt, key, rep=0):
-    if rep==0:
-        txt=decrypt(txt,key,1)
-    encoded=""
+def encrypt(txt,key):
+    data=""
+    for i,ch in enumerate(txt):
+        value=ord(ch)^ord(key[i%len(key)])
+        data+=f"{value:03d}"
+    return "".join(chr(int(data[i:i+3])) for i in range(0,len(data),3))
+def decrypt(txt,key):
+    data=""
     for ch in txt:
-        n=ord(ch)
-        if n<100:
-            encoded+=f"{n//10}"
-        else:
-            encoded+=f"{n:02d}"
-    digits=""
-    for i in range(0,len(encoded),3):
-        part=encoded[i:i+3]
-        if len(part)==3:
-            digits+=str(int(part)-200)
-    values=[]
-    temp=""
-    for d in digits:
-        temp+=d
-        if int(temp)>31:
-            values.append(int(temp))
-            temp=""
+        data+=f"{ord(ch):03d}"
     result=""
-    for i, v in enumerate(values):
-        result+=chr(v^ord(key[i%len(key)]))
+    nums=[int(data[i:i+3]) for i in range(0,len(data),3)]
+    for i,value in enumerate(nums):
+        result+=chr(value^ord(key[i%len(key)]))
     return result
 def key():
     import time
