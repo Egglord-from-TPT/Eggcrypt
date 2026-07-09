@@ -1,50 +1,53 @@
-def encrypt(txt,rep=0):
-    a=[]
-    b=""
-    c=""
-    for i in txt:
-        b=ord(i)
-        for j in str(b):
-            c+=str(int(j)+200)
-            if len(c)> 4:
-                a.append(chr(int(c)))
-                c=""
-    txt=""
-    for i in a:
-        txt+=i
-    if rep==1:
-        return txt
-    else:
-        return encrypt(txt,1)
-def decrypt(txt, rep=0):
+def encrypt(txt, key, rep=0):
+    encoded=""
+    for i, ch in enumerate(txt):
+        b=ord(ch)^ord(key[i%len(key)])
+        for digit in str(b):
+            encoded+=f"{int(digit)+200:03d}"
+    out=""
+    for i in range(0, len(encoded),2):
+        chunk=encoded[i:i+2]
+        if len(chunk)==2:
+            out+=chr(int(chunk))
+        else:
+            out+=chr(int(chunk)*10)
+    if rep:
+        return out
+    return encrypt(out,key,1)
+def decrypt(txt, key, rep=0):
     if rep==0:
-        txt=decrypt(txt, 1)
-    digits=""
+        txt=decrypt(txt,key,1)
+    encoded=""
     for ch in txt:
-        num=ord(ch)
-        digits+=str(num)
-    result=""
-    for i in range(0, len(digits), 3):
-        chunk=digits[i:i+3]
-        if len(chunk) ==3:
-            original_digit=int(chunk)-200
-            result += str(original_digit)
-    final=""
+        n=ord(ch)
+        if n<100:
+            encoded+=f"{n//10}"
+        else:
+            encoded+=f"{n:02d}"
+    digits=""
+    for i in range(0,len(encoded),3):
+        part=encoded[i:i+3]
+        if len(part)==3:
+            digits+=str(int(part)-200)
+    values=[]
     temp=""
-    for d in result:
+    for d in digits:
         temp+=d
         if int(temp)>31:
-            final+=chr(int(temp))
+            values.append(int(temp))
             temp=""
-    return final
+    result=""
+    for i, v in enumerate(values):
+        result+=chr(v^ord(key[i%len(key)]))
+    return result
 def key():
     import time
     seed=1
     for i in range(int(time.time()*10000)%100):
-    	a=str(time.time()*10000)
-    	a=a[0:10]
-    	a=int(a)
-    	seed=int(seed*a+(round(seed^a)))
+            a=str(time.time()*10000)
+            a=a[0:10]
+            a=int(a)
+            seed=int(seed*a+(round(seed^a)))
     return seed
 def hash(inp):
     inp=str(inp)
