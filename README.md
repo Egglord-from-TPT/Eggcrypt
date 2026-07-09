@@ -6,13 +6,13 @@ This is my fifth python library :D
 
 Commands:
 
-eggcrypt.encrypt("") # Returns an encrypted string.
+eggcrypt.encrypt("text", "key") # Returns an encrypted string.
 
-eggcrypt.decrypt("") # Returns a non-encrypted string.
+eggcrypt.decrypt("ciphertext", "key") # Returns a non-encrypted string.
 
 eggcrypt.key() # Returns a random key/seed.
 
-eggcrypt.hash("") # Uses a custom method to hash a string.
+eggcrypt.hash("") # Uses a custom method to hash a string. Input: str or int.
 
 # !NB!
 
