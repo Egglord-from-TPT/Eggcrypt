@@ -109,8 +109,9 @@ def encrypt(txt,key):
     txt=diffuse2(txt)
     final_perm =make_perm(len(txt), roundkey(key,999))
     txt=permute(txt,final_perm)
-    return txt
+    return txt.encode("utf-8").hex()
 def decrypt(txt,key):
+    txt=bytes.fromhex(txt).decode("utf-8")
     final_perm=make_perm(len(txt),roundkey(key,999))
     txt=permute(txt,inverse_perm(final_perm))
     txt=undiffuse2(txt)
