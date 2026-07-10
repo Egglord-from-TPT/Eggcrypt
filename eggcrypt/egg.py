@@ -1,37 +1,27 @@
-def hash2(inp):
-    inp=str(inp)
-    H=[0x243f6a8885a308d3,0x13198a2e03707344,0xa4093822299f31d0,0x082efa98ec4e6c89]
-    for i,c in enumerate(inp):
-       x=ord(c)+(i<<8)
-       j=i%4
-       H[j]^=x
-       H[j]=(H[j]*0x100000001b3)&0xffffffffffffffff
-       H[(j+1)%4]^=H[j]>>17
-    key_str=''.join(f'{x:016x}' for x in H)
-    tot=sum((i+1)*ord(c) for i,c in enumerate(key_str))
-    for i in inp:
-        tot^=ord(i)
-    out=""
-    for i in key_str:
-        v=int(i,16)
-        out+=str(v+((tot*v)%256))
-    o=""
-    for i in out:o+=chr((int(i)+tot)%256)
-    out=""
-    for i in range(len(o)-1):out+=str(i*tot+ord(o[i]))
-    for n in map(int,[out[i:i+2] for i in range(0,len(out),2)]):o+=chr(n+32)
-    if len(out)%2:o+=chr(int(out[-1])*21)
-    o=o.lstrip("0123456789")
-    h=0
-    for c in o:
-       h^=ord(c)
-       h=((h<<13)|(h >> 243))&((1<<256)-1)
-       h=(h*0x9e3779b97f4a7c15)&((1<<256)-1)
-    chars="0123456789abcdefghijklmnopqrstuvwxyz"
-    x=""
-    while h:x=chars[h%36]+x;h//=36
-    out=x.zfill(50)
-    return out
+from functools import lru_cache
+def hash2(txt):
+    txt=str(txt)
+    data=txt.encode()
+    m=0xFFFFFFFFFFFFFFFF
+    h=0x9E3779B97F4A7C15^len(data)
+    i=0
+    while i+8<=len(data):
+        x=int.from_bytes(data[i:i+8],"little")
+        h^=x*0x9E3779B185EBCA87&m
+        h=((h<<31)|(h>>33))&m
+        h*=0xC2B2AE3D27D4EB4F&m
+        i+=8
+    x=0
+    for j,b in enumerate(data[i:]):
+        x|=b<<(j*8)
+    h^=x*0x165667B19E3779F9&m
+    h^=h>>33
+    h=h*0xFF51AFD7ED558CCD&m
+    h^=h>>33
+    h=h*0xC4CEB9FE1A85EC53&m
+    h^=h>>33
+    return str(h)
+@lru_cache(maxsize=512)
 def makesbox(key):
     prev=hash2(key)
     stream=[]
@@ -80,6 +70,7 @@ def undiffuse2(data):
 def round_sbox(key,r):
     round_key=xor_text(str(key),hash2(str(key)+str(r*0x9E3779B97F4A7C15)))
     return makesbox(round_key)
+@lru_cache(maxsize=512)
 def roundkey(key,r):
     return int(hash2(str(key)+str(r*0x9E3779B97F4A7C15)),36)
 def permute(data, perm):
@@ -138,6 +129,49 @@ def decrypt(txt,key):
             out+=chr(inv[ord(ch)])
         txt=xor_text(out,roundkey(key,r))
     return txt
+def key():
+    import time
+    seed=1
+    for i in range(int(time.time()*10000)%100):
+            a=str(time.time()*10000)
+            a=a[0:10]
+            a=int(a)
+            seed=int(seed*a+(round(seed^a)))
+    return seed
+def hash(inp):
+    inp=str(inp)
+    H=[0x243f6a8885a308d3,0x13198a2e03707344,0xa4093822299f31d0,0x082efa98ec4e6c89]
+    for i,c in enumerate(inp):
+       x=ord(c)+(i<<8)
+       j=i%4
+       H[j]^=x
+       H[j]=(H[j]*0x100000001b3)&0xffffffffffffffff
+       H[(j+1)%4]^=H[j]>>17
+    key_str=''.join(f'{x:016x}' for x in H)
+    tot=sum((i+1)*ord(c) for i,c in enumerate(key_str))
+    for i in inp:
+        tot^=ord(i)
+    out=""
+    for i in key_str:
+        v=int(i,16)
+        out+=str(v+((tot*v)%256))
+    o=""
+    for i in out:o+=chr((int(i)+tot)%256)
+    out=""
+    for i in range(len(o)-1):out+=str(i*tot+ord(o[i]))
+    for n in map(int,[out[i:i+2] for i in range(0,len(out),2)]):o+=chr(n+32)
+    if len(out)%2:o+=chr(int(out[-1])*21)
+    o=o.lstrip("0123456789")
+    h=0
+    for c in o:
+       h^=ord(c)
+       h=((h<<13)|(h >> 243))&((1<<256)-1)
+       h=(h*0x9e3779b97f4a7c15)&((1<<256)-1)
+    chars="0123456789abcdefghijklmnopqrstuvwxyz"
+    x=""
+    while h:x=chars[h%36]+x;h//=36
+    out=x.zfill(50)
+    return out
 def key():
     import time
     seed=1
