@@ -81,6 +81,7 @@ def make_perm(n, key=7):
     x=key&0x7fffffff
     for _ in range(n):
         x=(x*1103515245+12345)&0x7fffffff
+        x=int.from_bytes(xor_text(str(x),hash2(x*0x9E3779B185EBCA87)).encode(),"big")
         pos=x%n
         while pos in used:
             pos=(pos+1)%n
@@ -129,49 +130,6 @@ def decrypt(txt,key):
             out+=chr(inv[ord(ch)])
         txt=xor_text(out,roundkey(key,r))
     return txt
-def key():
-    import time
-    seed=1
-    for i in range(int(time.time()*10000)%100):
-            a=str(time.time()*10000)
-            a=a[0:10]
-            a=int(a)
-            seed=int(seed*a+(round(seed^a)))
-    return seed
-def hash(inp):
-    inp=str(inp)
-    H=[0x243f6a8885a308d3,0x13198a2e03707344,0xa4093822299f31d0,0x082efa98ec4e6c89]
-    for i,c in enumerate(inp):
-       x=ord(c)+(i<<8)
-       j=i%4
-       H[j]^=x
-       H[j]=(H[j]*0x100000001b3)&0xffffffffffffffff
-       H[(j+1)%4]^=H[j]>>17
-    key_str=''.join(f'{x:016x}' for x in H)
-    tot=sum((i+1)*ord(c) for i,c in enumerate(key_str))
-    for i in inp:
-        tot^=ord(i)
-    out=""
-    for i in key_str:
-        v=int(i,16)
-        out+=str(v+((tot*v)%256))
-    o=""
-    for i in out:o+=chr((int(i)+tot)%256)
-    out=""
-    for i in range(len(o)-1):out+=str(i*tot+ord(o[i]))
-    for n in map(int,[out[i:i+2] for i in range(0,len(out),2)]):o+=chr(n+32)
-    if len(out)%2:o+=chr(int(out[-1])*21)
-    o=o.lstrip("0123456789")
-    h=0
-    for c in o:
-       h^=ord(c)
-       h=((h<<13)|(h >> 243))&((1<<256)-1)
-       h=(h*0x9e3779b97f4a7c15)&((1<<256)-1)
-    chars="0123456789abcdefghijklmnopqrstuvwxyz"
-    x=""
-    while h:x=chars[h%36]+x;h//=36
-    out=x.zfill(50)
-    return out
 def key():
     import time
     seed=1
