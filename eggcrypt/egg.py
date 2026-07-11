@@ -135,15 +135,16 @@ def decrypt(txt,key):
             out+=chr(inv[ord(ch)])
         txt=xor_text(out,roundkey(key,r))
     return txt
-def key():
+def key(seed):
     import time
-    seed=1
+    seed=int(str(seed).lstrip("-"))
     for i in range(int(time.time()*10000)%100):
             a=str(time.time()*10000)
             a=a[0:10]
             a=int(a)
             seed=int(seed*a+(round(seed^a)))
-    return seed
+    
+    return hash(hash2(seed))
 def hash(inp):
     inp=str(inp)
     H=[0x243f6a8885a308d3,0x13198a2e03707344,0xa4093822299f31d0,0x082efa98ec4e6c89]
