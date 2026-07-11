@@ -1,4 +1,6 @@
 from functools import lru_cache
+def replace_non_255(text):
+    return ''.join(c if ord(c)<=255 else '?' for c in text)
 def hash2(txt):
     txt=str(txt)
     data=txt.encode()
@@ -94,6 +96,7 @@ def inverse_perm(perm):
         inv[old_pos]=new_pos
     return inv
 def encrypt(txt,key):
+    txt=replace_non_255(txt)
     for r in range(10):
         txt=xor_text(txt,roundkey(key,r))
         sbox=round_sbox(key,r)
@@ -111,6 +114,7 @@ def encrypt(txt,key):
     txt=permute(txt,final_perm)
     return txt.encode("utf-8").hex()
 def decrypt(txt,key):
+    txt=replace_non_255(txt)
     txt=bytes.fromhex(txt).decode("utf-8")
     final_perm=make_perm(len(txt),roundkey(key,999))
     txt=permute(txt,inverse_perm(final_perm))
