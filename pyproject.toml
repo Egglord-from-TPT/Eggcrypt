@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eggcrypt"
-version = "3.2.1"
+version = "3.2.2"
 description = "A pretty secure (yet inneficient) encryption program. Has key(), hash(), encrypt() and decrypt()."
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
   { name="Egglord" }
 ]
-license = { text = "MIT" }
+license = { text = "LGPL-3.0-or-later" }
