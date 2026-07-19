@@ -112,10 +112,10 @@ def encrypt(txt,key):
     txt=diffuse2(txt)
     final_perm =make_perm(len(txt), roundkey(key,999))
     txt=permute(txt,final_perm)
-    return txt.encode("utf-8").hex()
+    return txt.encode("latin-1").hex()
 def decrypt(txt,key):
     txt=replace_non_255(txt)
-    txt=bytes.fromhex(txt).decode("utf-8")
+    txt=bytes.fromhex(txt).decode("latin-1")
     final_perm=make_perm(len(txt),roundkey(key,999))
     txt=permute(txt,inverse_perm(final_perm))
     txt=undiffuse2(txt)
