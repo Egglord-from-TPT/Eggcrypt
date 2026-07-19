@@ -148,7 +148,6 @@ def decrypt(txt, key):
 def key(seed=""):
     if seed=="":
         import time
-        seed=int(str(seed).lstrip("-"))
         for i in range(int(time.time()*10000)%100):
                 a=str(time.time()*10000)
                 a=a[0:10]
