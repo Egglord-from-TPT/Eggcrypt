@@ -38,52 +38,55 @@ def makesbox(key):
     unused=list(range(256))
     sbox=[]
     for i in range(255,-1,-1):
-        b=stream.pop()% (i+1)
+        b=stream.pop()%(i+1)
         sbox.append(unused.pop(b))
     return sbox
-def xor_text(txt,key):
-    key=str(key)
-    out=""
-    for i,ch in enumerate(txt):
-        out+=chr(ord(ch)^ord(key[i%len(key)]))
-    return out
-def diffuse(data):
-    data=[ord(c) for c in data]
-    for i in range(1,len(data)):
+def _to_bytes(data):
+    if isinstance(data, bytes):
+        return data
+    elif isinstance(data, str):
+        return data.encode('utf-8')
+    elif isinstance(data, int):
+        return str(data).encode('utf-8')
+    else:
+        return str(data).encode('utf-8')
+def _xor_bytes(data, key):
+    data=_to_bytes(data)
+    key=_to_bytes(key)
+    key_len=len(key)
+    return bytes(data[i]^key[i%key_len] for i in range(len(data)))
+def _diffuse_bytes(data):
+    data=bytearray(_to_bytes(data))
+    for i in range(1, len(data)):
         data[i]^=data[i-1]
-    return "".join(chr(x) for x in data)
-def undiffuse(data):
-    data=[ord(c) for c in data]
-    for i in range(len(data)-1,0,-1):
+    return bytes(data)
+def _undiffuse_bytes(data):
+    data=bytearray(_to_bytes(data))
+    for i in range(len(data)-1, 0, -1):
         data[i]^=data[i-1]
-    return "".join(chr(x) for x in data)
-def rol(x):
+    return bytes(data)
+def _rol(x):
     return ((x<<1)|(x>>7))&0xff
-def diffuse2(data):
-    data=[ord(c) for c in data]
-    for i in range(1,len(data)):
-        data[i]^=rol(data[i-1])
-    return "".join(chr(x) for x in data)
-def undiffuse2(data):
-    data=[ord(c) for c in data]
-    for i in range(len(data)-1,0,-1):
-        data[i]^=rol(data[i-1])
-    return "".join(chr(x) for x in data)
-def round_sbox(key,r):
-    round_key=xor_text(str(key),hash2(str(key)+str(r*0x9E3779B97F4A7C15)))
-    return makesbox(round_key)
-@lru_cache(maxsize=512)
-def roundkey(key,r):
-    return int(hash2(str(key)+str(r*0x9E3779B97F4A7C15)),36)
-def permute(data, perm):
-    return "".join(data[i] for i in perm)
+def _diffuse2_bytes(data):
+    data=bytearray(_to_bytes(data))
+    for i in range(1, len(data)):
+        data[i] ^= _rol(data[i-1])
+    return bytes(data)
+def _undiffuse2_bytes(data):
+    data=bytearray(_to_bytes(data))
+    for i in range(len(data)-1, 0, -1):
+        data[i] ^= _rol(data[i-1])
+    return bytes(data)
+def _permute_bytes(data, perm):
+    data=_to_bytes(data)
+    return bytes(data[i] for i in perm)
 def make_perm(n, key=7):
     perm=[]
     used=set()
     x=key&0x7fffffff
     for _ in range(n):
         x=(x*1103515245+12345)&0x7fffffff
-        x=int.from_bytes(xor_text(str(x),hash2(x*0x9E3779B185EBCA87)).encode(),"big")
+        x=int.from_bytes(_xor_bytes(str(x),hash2(x*0x9E3779B185EBCA87)),"big")
         pos=x%n
         while pos in used:
             pos=(pos+1)%n
@@ -95,55 +98,62 @@ def inverse_perm(perm):
     for new_pos, old_pos in enumerate(perm):
         inv[old_pos]=new_pos
     return inv
-def encrypt(txt,key):
-    txt=replace_non_255(txt)
+def round_sbox(key, r):
+    round_key=_xor_bytes(str(key), hash2(str(key)+str(r*0x9E3779B97F4A7C15)))
+    return makesbox(round_key.decode('latin-1', errors='replace'))
+@lru_cache(maxsize=512)
+def roundkey(key, r):
+    return int(hash2(str(key)+str(r*0x9E3779B97F4A7C15)), 36)
+def encrypt(txt, key):
+    data=_to_bytes(txt)
     for r in range(10):
-        txt=xor_text(txt,roundkey(key,r))
-        sbox=round_sbox(key,r)
-        out=""
-        for ch in txt:
-            out+=chr(sbox[ord(ch)])
-        txt=diffuse2(out)
-        txt=diffuse(txt)
-        perm=make_perm(len(txt), roundkey(key,r))
-        txt=permute(txt,perm)
+        rk=roundkey(key, r)
+        rk_bytes=str(rk).encode('utf-8')
+        data=_xor_bytes(data, rk_bytes)
+        sbox=round_sbox(key, r)
+        data=bytes(sbox[b] for b in data)
+        data=_diffuse2_bytes(data)
+        data=_diffuse_bytes(data)
+        perm=make_perm(len(data), roundkey(key, r))
+        data=_permute_bytes(data, perm)
     for r in range(22):
-        txt=xor_text(txt, hash2(hash2(r)+hash2(key)))
-    txt=diffuse2(txt)
-    final_perm =make_perm(len(txt), roundkey(key,999))
-    txt=permute(txt,final_perm)
-    return txt.encode("latin-1").hex()
-def decrypt(txt,key):
-    txt=replace_non_255(txt)
-    txt=bytes.fromhex(txt).decode("latin-1")
-    final_perm=make_perm(len(txt),roundkey(key,999))
-    txt=permute(txt,inverse_perm(final_perm))
-    txt=undiffuse2(txt)
-    for r in range(21,-1,-1):
-        txt=xor_text(txt,hash2(hash2(r)+hash2(key)))
-    for r in range(9,-1,-1):
-        perm=make_perm(len(txt),roundkey(key,r))
-        txt=permute(txt, inverse_perm(perm))
-        txt=undiffuse(txt)
-        txt=undiffuse2(txt)
-        sbox=round_sbox(key,r)
+        h=hash2(hash2(r)+hash2(key))
+        data=_xor_bytes(data, h)
+    data=_diffuse2_bytes(data)
+    final_perm=make_perm(len(data), roundkey(key, 999))
+    data=_permute_bytes(data, final_perm)
+    return data.hex()
+def decrypt(txt, key):
+    data=bytes.fromhex(txt)
+    final_perm=make_perm(len(data), roundkey(key, 999))
+    data=_permute_bytes(data, inverse_perm(final_perm))
+    data=_undiffuse2_bytes(data)
+    for r in range(21, -1, -1):
+        h=hash2(hash2(r)+hash2(key))
+        data=_xor_bytes(data, h)
+    for r in range(9, -1, -1):
+        perm=make_perm(len(data), roundkey(key, r))
+        data=_permute_bytes(data, inverse_perm(perm))
+        data=_undiffuse_bytes(data)
+        data=_undiffuse2_bytes(data)
+        sbox=round_sbox(key, r)
         inv=[0]*256
-        for i,v in enumerate(sbox):
+        for i, v in enumerate(sbox):
             inv[v]=i
-        out=""
-        for ch in txt:
-            out+=chr(inv[ord(ch)])
-        txt=xor_text(out,roundkey(key,r))
-    return txt
-def key(seed):
-    import time
-    seed=int(str(seed).lstrip("-"))
-    for i in range(int(time.time()*10000)%100):
-            a=str(time.time()*10000)
-            a=a[0:10]
-            a=int(a)
-            seed=int(seed*a+(round(seed^a)))
-    
+        data=bytes(inv[b] for b in data)
+        rk=roundkey(key, r)
+        rk_bytes=str(rk).encode('utf-8')
+        data=_xor_bytes(data, rk_bytes)
+    return data.decode('utf-8', errors='replace')
+def key(seed=""):
+    if seed=="":
+        import time
+        seed=int(str(seed).lstrip("-"))
+        for i in range(int(time.time()*10000)%100):
+                a=str(time.time()*10000)
+                a=a[0:10]
+                a=int(a)
+                seed=int(seed*a+(round(seed^a)))
     return hash(hash2(seed))
 def hash(inp):
     inp=str(inp)
