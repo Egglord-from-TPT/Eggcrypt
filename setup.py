@@ -5,7 +5,7 @@ README = Path("README.md").read_text(encoding="utf-8")
 
 setup(
     name="eggcrypt",
-    version="3.1.4",
+    version="3.2.0",
     packages=find_packages(),
     description="A pretty secure (yet inefficient) encryption program.",
     long_description=README,
