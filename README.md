@@ -10,7 +10,7 @@ eggcrypt.encrypt("text", "key") # Returns an encrypted string.
 
 eggcrypt.decrypt("ciphertext", "key") # Returns a non-encrypted string.
 
-eggcrypt.key() # Returns a random key/seed.
+eggcrypt.key("") # Returns a random key/seed if no arguments, uses the string/intiger input if given to generate a deterministic output.
 
 eggcrypt.hash("") # Uses a custom method to hash a string. Input: str or int.
 
