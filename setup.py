@@ -5,13 +5,13 @@ README = Path("README.md").read_text(encoding="utf-8")
 
 setup(
     name="eggcrypt",
-    version="3.2.1",
+    version="3.2.2",
     packages=find_packages(),
     description="A pretty secure (yet inefficient) encryption program.",
     long_description=README,
     long_description_content_type="text/markdown",
     author="Egglord",
-    license="MIT", 
+    license="LGPL-3.0-or-later", 
     license_files=("LICENSE",),
     python_requires=">=3.7",
 )
